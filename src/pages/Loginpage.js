@@ -15,12 +15,12 @@ const styles={
     borderRadius: '15px',
     margin: 'auto',
     boxShadow: '5px 10px #888888',
-    height: '300px',
+    height: '320px',
     alignItems: 'center',
     display: 'flex',
 };
 
-const Loginpage=({login})=>{
+  const Loginpage=({login, pageChange})=>{
     const [values, setValues] = React.useState({
         email: '',
         password: '',
@@ -53,6 +53,7 @@ const Loginpage=({login})=>{
       className=' justify-center  mt6'
     > 
     <Stack  spacing={2} direction="column" className="justify-center  items-center pa3 ">
+      <h3>Login</h3>
     <TextField
         value={values.email}
         onChange={handleChange('email')}
@@ -86,8 +87,11 @@ const Loginpage=({login})=>{
           />
         </FormControl>
 
-<Button variant="contained" onClick={tryLogin}>
+<Button variant="contained" onClick={tryLogin} color="success">
         Login
+      </Button>
+      <Button variant="contained"  color="secondary" onClick={pageChange}>
+        Change Password
       </Button>
         </Stack>
 

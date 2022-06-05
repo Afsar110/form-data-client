@@ -21,7 +21,6 @@ const styles={
 
 const PasswordChange=({ pageChange, changePassword })=>{
     const [values, setValues] = useState({
-        oldPassword: '',
         newPassword: '',
         confirmPassword: '',
         error: false,
@@ -39,7 +38,6 @@ const PasswordChange=({ pageChange, changePassword })=>{
       const tryChangePassword = () => {
         if(values.newPassword === values.confirmPassword) {
           changePassword({
-            oldPassword: values.oldPassword,
             newPassword: values.newPassword
           });
           setValues(val =>({...val, error:false, errorMessage: '' }))
@@ -58,16 +56,6 @@ const PasswordChange=({ pageChange, changePassword })=>{
     > 
     <Stack  spacing={2} direction="column" className="justify-center  items-center pa3 ">
       <h3>Change Password</h3>
-    <TextField
-        value={values.oldPassword}
-        onChange={(e)=>handleChange('oldPassword',e)}
-        sx={{'& input': {height: '50px'}}}
-          id="Old-password-input"
-          label="Old password"
-          type="password"
-          size="normal"
-          autoComplete="password"
-        />
          <TextField
         value={values.newPassword}
         onChange={(e)=>handleChange('newPassword',e)}
@@ -92,8 +80,8 @@ const PasswordChange=({ pageChange, changePassword })=>{
 <Button variant="contained" onClick={tryChangePassword}  color="success">
         Confirm
       </Button>
-      <Button variant="contained" color="secondary" onClick={pageChange}>
-       Back To Login
+      <Button variant="contained" color="error" onClick={pageChange}>
+       Cancel
       </Button>
         </Stack>
 

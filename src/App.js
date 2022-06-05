@@ -9,38 +9,45 @@ import { Button, Stack } from '@mui/material';
 import MessageIcon from '@mui/icons-material/Message';
 import MRActionModal from './components/MRActionModal';
 import api from './action/api';
-
+import {app, auth} from './firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import Loginpage from './pages/Loginpage';
+import PasswordChange from './pages/PasswordChange';
 
 function App() {
   const [searchText, setSearchText] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false)
   const [tableData, setTableData] = useState([]);
   const [tableCount, setTableCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showTable, setShowTable] = useState(false);
+  const [user,setUser] = useState({});
+  const[changePasswordPage, setChangePasswordPage] = useState(false);
 
   useEffect(()=>{
-    api.checklogin().then(response => {
-      if (response && response.status) {
+    setLoginLoading(true);
+    return onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
         setIsLoggedIn(true);
-        api.bootstrap().then(res=> {
-          if(res && res.status) {
-            if(res.data.messages) {
-              setTableData(res.data.messages);
-              setTableCount(res.data.count)
-              setShowTable(true);
-            }
-          }
-        });
+        setLoginLoading(false);
+      } else {
+        setIsLoggedIn(false);
+        setLoginLoading(false);
+        setUser({});
       }
+    }, (error)=>{
+      console.error(error);
+        setIsLoggedIn(false);
+        setLoginLoading(false);
+        setUser({});
     });
   },[])
   const handleLogout = () => {
-    api.logout();
-    setIsLoggedIn(false)
+    signOut(auth)
   };
   const handleDelete=(selectedRow)=> {
     if(Array.isArray(selectedRow)){
-
     } else {
       setTableData(rows => {
         return rows.filter(row=>row.id !== selectedRow.id);
@@ -60,21 +67,13 @@ function App() {
     // });
     // setTableData(updateTableData)
   }
+
   const handleLogin=async ({email, password})=>{
-    const loginAction = await api.login(email,password);
-    if (loginAction && loginAction.status) {
-      setIsLoggedIn(true);
-      api.bootstrap().then(res=> {
-        if(res && res.status) {
-          if(res.data.messages) {
-            setTableData(res.data.messages);
-            setTableCount(res.data.count)
-            setShowTable(true);
-          }
-        }
-      });
-    } else {
-      alert(loginAction.message);
+    try{
+      setLoginLoading(true)
+      await signInWithEmailAndPassword(auth, email, password)
+    } catch (error) {
+      console.error(error);
     }
   }
   const changePassword = () => {
@@ -84,21 +83,24 @@ function App() {
     
     <div className="App tc">
       {isLoggedIn ? (
+        changePasswordPage ? <PasswordChange changePassword={changePassword} pageChange={()=> setChangePasswordPage(false)}/>
+        :
       <Stack spacing={2} direction="column" className="justify-center">
         <Stack spacing={2} direction="row" className="justify-between">
           <div style={{ display: 'flex',alignItems: 'center' }}>
-            <MessageIcon fontSize="large" />
-            <p >My Messages</p>
+            <img src='/customer-support.png' width='100px' height="100px" alt="Customer Support"/>
           </div>
-          {/* <SearchBox text={searchText} updateText={setSearchText} search={searchClicked}/> */}
-          <div>
+          {/* <SearchB  ox text={searchText} updateText={setSearchText} search={searchClicked}/> */}
+          <div className="flex" style={{alignItems: "center", justifyContent:"center"}}>
+          <Button className='w-0.5 h-0.5 grow mr3 ' size="small" sx={{mr: 3}} variant="contained" color="secondary" onClick={()=> setChangePasswordPage(true)} >Change Password</Button>
           <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={handleLogout} >Logout</Button>
           </div>
         </Stack>
       {showTable ? <Table data ={tableData} count={tableCount} delete={handleDelete}/> :<></>}
       </Stack>
       ): 
-    <AuthPage login={handleLogin} changePasword={changePassword}/>
+      <Loginpage loading={loginLoading} login={handleLogin}/> 
+    // <AuthPage login={handleLogin} changePasword={changePassword} loading={loginLoading}/>
   }
     </div>
   );

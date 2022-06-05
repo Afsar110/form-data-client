@@ -4,13 +4,13 @@ import { getAuth } from "firebase/auth";
 // TODO: Replace the following with your app's Firebase project configuration
 // See: https://firebase.google.com/docs/web/learn-more#config-object
 const firebaseConfig = {
-    apiKey: "AIzaSyBHT9gK_cZZec4Z9Bvn3u0MYgJMUbEKZJM",
-    authDomain: "my-message-form.firebaseapp.com",
-    projectId: "my-message-form",
-    storageBucket: "my-message-form.appspot.com",
-    messagingSenderId: "167369410596",
-    appId: "1:167369410596:web:1b0e265798e6fc6fbb30b1",
-    measurementId: "G-Q915P43E8G"
+    apiKey: "AIzaSyCqVrpeqdjkhKC_3Ax7t8OuUhf8M0S2npg",
+    authDomain: "customer-support-messages.firebaseapp.com",
+    projectId: "customer-support-messages",
+    storageBucket: "customer-support-messages.appspot.com",
+    messagingSenderId: "985768799147",
+    appId: "1:985768799147:web:69401e8c51ac1ceb5a80ee",
+    measurementId: "G-S1S0BR6Y17"
 };
 
 // Initialize Firebase

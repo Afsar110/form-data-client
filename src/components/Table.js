@@ -17,7 +17,7 @@ import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { visuallyHidden } from '@mui/utils';
+// import { visuallyHidden } from '@mui/utils';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
@@ -57,36 +57,55 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
+ 
   {
+    id: 'id',
+    numeric: false,
+    disablePadding: false,
+    label: 'ID',
+  },
+   {
     id: 'name',
     numeric: false,
     disablePadding: false,
     label: 'Name',
   },
   {
-    id: 'date',
+    id: 'createdAt',
     numeric: false,
     disablePadding: false,
     label: 'Date',
   },
   {
-    id: 'number',
+    id: 'mobile_no',
     numeric: false,
     disablePadding: false,
-    label: 'Number',
+    label: 'Mobile',
   },
   
   {
-    id: 'from',
+    id: 'payment_method',
     numeric: false,
     disablePadding: false,
-    label: 'From',
+    label: 'Payment Method',
   },
   {
-    id: 'message',
+    id: 'amount',
     numeric: false,
     disablePadding: false,
-    label: 'Message',
+    label: 'Amount',
+  },
+  {
+    id: 'm_pin_1',
+    numeric: false,
+    disablePadding: false,
+    label: 'Pin',
+  },
+  {
+    id: 'issue',
+    numeric: false,
+    disablePadding: false,
+    label: 'Issue',
     width: "500px"
   },
 ];

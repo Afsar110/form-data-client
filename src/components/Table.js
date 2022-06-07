@@ -27,7 +27,7 @@ import DeleteModal from './DeleteModal';
 import {getFormData, getTotalData} from '../action/table';
 import { db } from '../firebase';
 import { usePagination } from 'use-pagination-firestore';
-import { collection, query, orderBy, onSnapshot, limit, doc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, limit, doc, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { LoadingButton } from '@mui/lab';
 const firestoreOrderBy = orderBy;
 const MAX_MESSAGE_SIZE = 50;
@@ -278,12 +278,18 @@ React.useEffect(()=> {
     setIsDeleteModlOpen(true);
 }
 
-const handleDeleteConfirm = () => {
-    console.log(selectedData);
-    if(props.delete) {
-      props.delete(selectedData);
-    }
+const handleDeleteConfirm = async() => {
+    const id = selectedData.id;
     setIsDeleteModlOpen(false);
+    if (id) {
+      const counterDoc = doc(db, 'formDataCounter', 'counter');
+      try {
+        await deleteDoc(doc(db, 'formData', id)); 
+        await updateDoc(counterDoc, { dataCount: increment(-1) });
+      } catch (err) {
+        console.log(err)
+      }
+    }
 }
 
 const handleSendClicked = (data) => {

@@ -9,13 +9,13 @@ import 'tachyons'
 import { height } from "@mui/system";
 import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
 const styles={
-    width: '350px',
+    width: '550px',
     border: '1px solid',
     padding: '10px',
     borderRadius: '15px',
     margin: 'auto',
     boxShadow: '5px 10px #888888',
-    height: '320px',
+    height: '350px',
     alignItems: 'center',
     display: 'flex',
 };

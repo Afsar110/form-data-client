@@ -20,7 +20,6 @@ function App() {
   const [tableData, setTableData] = useState([]);
   const [tableCount, setTableCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showTable, setShowTable] = useState(false);
   const [user,setUser] = useState({});
   const[changePasswordPage, setChangePasswordPage] = useState(false);
 
@@ -96,7 +95,7 @@ function App() {
           <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={handleLogout} >Logout</Button>
           </div>
         </Stack>
-      {showTable ? <Table data ={tableData} count={tableCount} delete={handleDelete}/> :<></>}
+      { <Table data ={tableData} count={tableCount} delete={handleDelete}/>}
       </Stack>
       ): 
       <Loginpage loading={loginLoading} login={handleLogin}/> 

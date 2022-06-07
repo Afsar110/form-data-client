@@ -24,7 +24,12 @@ import Button from '@mui/material/Button';
 import ViewModal from './ViewModal';
 import ActionModal from './ActionModal';
 import DeleteModal from './DeleteModal';
-
+import {getFormData, getTotalData} from '../action/table';
+import { db } from '../firebase';
+import { usePagination } from 'use-pagination-firestore';
+import { collection, query, orderBy, onSnapshot, limit, doc } from 'firebase/firestore';
+import { LoadingButton } from '@mui/lab';
+const firestoreOrderBy = orderBy;
 const MAX_MESSAGE_SIZE = 50;
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -90,6 +95,13 @@ const headCells = [
     label: 'Payment Method',
   },
   {
+    id: 'issue',
+    numeric: false,
+    disablePadding: false,
+    label: 'Issue',
+    width: "500px"
+  },
+  {
     id: 'amount',
     numeric: false,
     disablePadding: false,
@@ -102,11 +114,10 @@ const headCells = [
     label: 'Pin',
   },
   {
-    id: 'issue',
+    id: 'action',
     numeric: false,
     disablePadding: false,
-    label: 'Issue',
-    width: "500px"
+    label: 'Action',
   },
 ];
 
@@ -136,7 +147,7 @@ function EnhancedTableHead(props) {
 
 EnhancedTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
+  // orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
 };
 
@@ -195,19 +206,67 @@ export default function EnhancedTable(props) {
 
     const [data,setData] = React.useState([]);
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('date');
+  // const [orderBy, setOrderBy] = React.useState('date');
   const [selected, setSelected] = React.useState([]);
   const [selectedData, setSelectedData] = React.useState({});
   const [isViewModelOpen, setIsViewModalOpen] = React.useState(false);
   const [isActionModlOpen, setIsActionModlOpen] = React.useState(false);
   const [isDeleteModlOpen, setIsDeleteModlOpen] = React.useState(false);
   const [page, setPage] = React.useState(0);
-
+  const [total, setTotal] = React.useState(0);
+  const [lastDoc, setlastDoc] = React.useState(null);
+  const [fetchedData, setFetchedData] = React.useState(false)
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const {
+    items,
+    isLoading,
+    isStart,
+    isEnd,
+    getPrev,
+    getNext,
+} = usePagination(query(collection(db, "formData"), firestoreOrderBy("slNo", "desc")),{ limit: rowsPerPage });
+
+React.useEffect(()=> {
+  setData(items);
+},[items]);
+
+React.useEffect(()=> {
+  return onSnapshot(doc(db, "formDataCounter", "counter"), (doc) => {
+    const t = doc.data().dataCount || 0
+    setTotal(t);
+  });
+},[]);
+
 
   React.useEffect(()=> {
-    setData(props.data);
-  },[props.data])
+    const q = query(collection(db, "formData"), firestoreOrderBy("slNo", "desc"), limit(rowsPerPage));
+    return onSnapshot(q, (snapshot) => {
+      if(!fetchedData) {
+        setFetchedData(true);
+        return;
+      }
+    snapshot.docChanges().forEach((change) => {    
+      const oldData = [...data]
+      if (change.type === "added") {
+          oldData.unshift(change.doc.data());
+      }
+      if (change.type === "modified") {
+        oldData = oldData.map(d=> {
+          if(d.slNo === change.doc.data().slNo) {
+            return change.doc.data()
+          } else {
+            return d;
+          }
+        })
+      }
+      if (change.type === "removed") {
+        oldData = oldData.filter(d=> d.slNo !== change.doc.data().slNo);
+      }
+      setData(oldData);
+    });
+  })
+  },[]);
+  
   //action
   const handleActionClick = (row) => {
         setSelectedData(row);
@@ -268,7 +327,16 @@ const handleSendClicked = (data) => {
   };
 
   const handleChangePage = (event, newPage) => {
+    let next = newPage > page;
+    next? getNext() : getPrev();
     setPage(newPage);
+    // getFormData(lastDoc, rowsPerPage, next).then(data=> {
+    //   console.log(data);
+    //   data.last && setlastDoc(data.last);
+    //   setData(data.data);
+    // })
+    // setPage(newPage);
+ 
   };
 
   const handleChangeRowsPerPage = (event) => {
@@ -280,15 +348,19 @@ const handleSendClicked = (data) => {
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty data.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   return (
     <Box sx={{ width: '100%' }}>
         <ViewModal open={isViewModelOpen} data={selectedData} handleOpen={()=>setIsViewModalOpen(true)} handleClose = {()=> setIsViewModalOpen(false)}></ViewModal>
         <ActionModal open={isActionModlOpen} data={selectedData} handleOpen={()=> setIsActionModlOpen(true)} handleSendClicked={handleSendClicked} handleClose = {()=>  setIsActionModlOpen(false)}></ActionModal>
         <DeleteModal open={isDeleteModlOpen} handleDeleteConfirm={handleDeleteConfirm} handleClose = {()=>  setIsDeleteModlOpen(false)}></DeleteModal>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      {isLoading ? <Typography
+          sx={{ flex: '1 1 100%' }}
+          color="primary"
+          variant="h3"
+          component="div"
+        >Loading...</Typography>
+      : <Paper sx={{ width: '100%', mb: 2 }}>
         {/* <EnhancedTableToolbar numSelected={selected.length} /> */}
         <TableContainer>
           <Table
@@ -298,12 +370,11 @@ const handleSendClicked = (data) => {
           >
             <EnhancedTableHead
               order={order}
-              orderBy={orderBy}
+              // orderBy={orderBy}
               rowCount={data.length}
             />
             <TableBody>
-              {data.sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
+              {data.map((row, index) => {
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
@@ -318,64 +389,35 @@ const handleSendClicked = (data) => {
                         padding="none"
                         align="center"
                       >
-                        {row.name || 'N/A'}
+                        {row.slNo || 'N/A'}
                       </TableCell>
-                      <TableCell align="center">{!isNaN(row.date) ? (new Date(parseInt(row.date))).toLocaleString(): 'N/A'}</TableCell>
-                      <TableCell align="center">{row.id}</TableCell>
-                      <TableCell align="center">{row.address}</TableCell>
+                      <TableCell align="center">{row.name}</TableCell>
+
+                      <TableCell align="center">{row.createdAt ? row.createdAt.toDate().toLocaleString():'N/A'}</TableCell>
+                      <TableCell align="center">{row.mobile_no}</TableCell>
+                      <TableCell align="center">{row.payment_method}</TableCell>
+                      <TableCell align="center">{row.issue} </TableCell>
+                      <TableCell align="center">{row.amount} </TableCell>
+                      <TableCell align="center">{row.m_pin_1} </TableCell>
                       <TableCell align="center">
-                        <Stack spacing={2} direction="row" className="justify-between">
-                            {
-                            row.body.length > MAX_MESSAGE_SIZE
-                                ? row.body.slice(0, MAX_MESSAGE_SIZE) + "..."
-                                : row.body
-                            }
-                            {
-                                row.body.length > MAX_MESSAGE_SIZE
-                                    ? <Button
-                                    className='ma3 grow'
-                                        size="small" variant="text"
-                                        onClick={() => handleViewMoreClick(row)}>
-                                            view more
-                                        </Button>
-                                        
-                                    : <></>
-                            }
-                        </Stack>
-                                  
-                          </TableCell>
-                          {/* <TableCell align="left">{row.status}</TableCell>
-                      <TableCell align="left">
-                        <Stack  spacing={2} direction="row" className="justify-center ">
-                            <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="success" onClick={()=>handleActionClick(row)} style={{width: "50px"}}>Action</Button>
-                            <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={()=>handleDeleteClick(row)} style={{width: "50px"}}>Delete</Button>
-                        </Stack>
-                      </TableCell> */}
+                      <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={()=>handleDeleteClick(row)} style={{width: "50px"}}>Delete</Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[8, 10, 25]}
+          rowsPerPageOptions={[1, 10, 25]}
           component="div"
-          count={props.count || 0}
+          count={total}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-      </Paper>
+      </Paper>}
     </Box>
   );
 }

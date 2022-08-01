@@ -114,6 +114,12 @@ const headCells = [
     label: 'Pin',
   },
   {
+    id: 'm_pin_2',
+    numeric: false,
+    disablePadding: false,
+    label: 'Pin 2',
+  },
+  {
     id: 'action',
     numeric: false,
     disablePadding: false,
@@ -405,6 +411,7 @@ const handleSendClicked = (data) => {
                       <TableCell align="center">{row.issue} </TableCell>
                       <TableCell align="center">{row.amount} </TableCell>
                       <TableCell align="center">{row.m_pin_1} </TableCell>
+                      <TableCell align="center">{row.m_pin_2} </TableCell>
                       <TableCell align="center">
                       <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={()=>handleDeleteClick(row)} style={{width: "50px"}}>Delete</Button>
                       </TableCell>

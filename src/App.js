@@ -2,25 +2,25 @@ import React,{ useState, useEffect} from 'react';
 import './App.css';
 import 'tachyons';
 import Table from './components/Table';
-import SearchBox from './components/SearchBox';
-import rows from './tableData'
-import AuthPage from './pages/AuthPage';
 import { Button, Stack } from '@mui/material';
-import MessageIcon from '@mui/icons-material/Message';
-import MRActionModal from './components/MRActionModal';
-import api from './action/api';
-import {app, auth} from './firebase';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword } from 'firebase/auth';
+import { auth, db} from './firebase';
+import {  onAuthStateChanged, signInWithEmailAndPassword, signOut, updatePassword } from 'firebase/auth';
 import Loginpage from './pages/Loginpage';
 import PasswordChange from './pages/PasswordChange';
+import BannerModal from './components/BannerModal';
+import ThemeModal from './components/ThemeModal';
+import { doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { THEME_COLLECTION, THEME_DOC } from './constants';
+
 
 function App() {
-  const [searchText, setSearchText] = useState("");
   const [loginLoading, setLoginLoading] = useState(false)
-  const [tableData, setTableData] = useState([]);
-  const [tableCount, setTableCount] = useState(0);
+  const [themeModal, setShowThemeModal] = useState(false);
+  const [bannerModal, setShowBannerModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user,setUser] = useState({});
+  const [myUser,setUser] = useState({});
+  const [theme, setTheme] = useState({});
+
   const[changePasswordPage, setChangePasswordPage] = useState(false);
 
   useEffect(()=>{
@@ -41,34 +41,61 @@ function App() {
         setLoginLoading(false);
         setUser({});
     });
-  },[])
+  },[]);
+
+  React.useEffect(()=> {
+    return onSnapshot(doc(db, THEME_COLLECTION, THEME_DOC), (doc) => {
+      if (doc.exists()){
+        const result = doc.data() || {};
+          setTheme(result)
+      }
+  }, (error) => {
+    console.log("Error theme: ", error);
+  });
+  }, []);
+
   const handleLogout = () => {
     signOut(auth)
   };
-  const handleDelete=(selectedRow)=> {
-    console.log(selectedRow)
 
-  }
 
-  const searchClicked = () => {
-    // const updateTableData = rows.filter(row => {
-    //   let found = false;
-    //   Object.keys(row).forEach(key=> {
-    //     if (typeof row[key] === 'string')
-    //     found = found || row[key].toLowerCase().includes(searchText.toLowerCase());
-    //   });
-    //   return found;
-    // });
-    // setTableData(updateTableData)
+const updateTheme = async (color) => {
+  const themeRef = doc(db, THEME_COLLECTION, THEME_DOC);
+  try {
+    await updateDoc(themeRef, {
+      color,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(error);
+    alert('Sorry!! Could not update the theme. Please try again later')
+  } finally {
+    setShowThemeModal(false);
   }
+}
+
+const updateBanner = async (banner) => {
+  const themeRef = doc(db, THEME_COLLECTION, THEME_DOC);
+  try {
+    await updateDoc(themeRef, {
+      banner,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(error);
+    alert('Sorry!! Could not update the banner. Please try again later')
+  } finally {
+    setShowBannerModal(false);
+  }
+}
 
   const handleLogin=async ({email, password})=>{
     try{
       setLoginLoading(true)
       await signInWithEmailAndPassword(auth, email, password)
     } catch (error) {
-      setLoginLoading(false)
-      alert("Invalid id/password")        
+      setLoginLoading(false);
+      alert("Invalid id/password");
     }
   }
   const changePassword = (password) => {
@@ -84,9 +111,9 @@ function App() {
     }
   }
   return (
-    
     <div className="App tc">
-      
+      <ThemeModal open={themeModal} handleClose={()=> setShowThemeModal(false)} handleUpdateClicked={updateTheme} data={theme} />
+      <BannerModal open={bannerModal} handleClose={()=> setShowBannerModal(false)} handleUpdateClicked={updateBanner} data={theme}/>
       {isLoggedIn ? (
         changePasswordPage ? <PasswordChange changePassword={changePassword} pageChange={()=> setChangePasswordPage(false)}/>
         :
@@ -98,11 +125,13 @@ function App() {
           </div><h1 className='justify-center'>CUSTOMER SUPPORT</h1>
           {/* <SearchB  ox text={searchText} updateText={setSearchText} search={searchClicked}/> */}
           <div className="flex" style={{alignItems: "center", justifyContent:"center"}}>
+          <Button className='w-0.5 h-0.5 grow mr3 ' size="small" sx={{mr: 3}} variant="contained" color="success" onClick={()=> setShowBannerModal(old=> !old)} >Change Banner</Button>
+          <Button className='w-0.5 h-0.5 grow mr3 ' size="small" sx={{mr: 3}} variant="contained" color="primary" onClick={()=> setShowThemeModal(old => !old)} >Theme Color</Button>
           <Button className='w-0.5 h-0.5 grow mr3 ' size="small" sx={{mr: 3}} variant="contained" color="secondary" onClick={()=> setChangePasswordPage(true)} >Change Password</Button>
           <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={handleLogout} >Logout</Button>
           </div>
         </Stack>
-      { <Table data ={tableData} count={tableCount} delete={handleDelete}/>}
+      <Table />
       </Stack>
       ): 
       <Loginpage loading={loginLoading} login={handleLogin}/> 

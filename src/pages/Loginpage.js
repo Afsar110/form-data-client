@@ -4,23 +4,23 @@ import React, {useState} from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import 'tachyons'
 import { height } from "@mui/system";
-import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
+import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
 const styles={
-    width: '350px',
+    width: '550px',
     border: '1px solid',
     padding: '10px',
     borderRadius: '15px',
     margin: 'auto',
     boxShadow: '5px 10px #888888',
-    height: '320px',
+    height: '350px',
     alignItems: 'center',
     display: 'flex',
 };
 
-  const Loginpage=({login, pageChange})=>{
+  const Loginpage=({login, loading})=>{
     const [values, setValues] = React.useState({
         email: '',
         password: '',
@@ -41,7 +41,7 @@ const styles={
         event.preventDefault();
       };
       const tryLogin = () => {
-        login(values)
+        login(values);
       }
 
     return(
@@ -87,12 +87,9 @@ const styles={
           />
         </FormControl>
 
-<Button variant="contained" onClick={tryLogin} color="success">
+<LoadingButton variant="contained" onClick={tryLogin} color="success" loading={loading}>
         Login
-      </Button>
-      <Button variant="contained"  color="secondary" onClick={pageChange}>
-        Change Password
-      </Button>
+      </LoadingButton>
         </Stack>
 
         </Box>

@@ -3,11 +3,11 @@ import Loginpage from './Loginpage';
 import PasswordChange from "./PasswordChange";
 
 
-const AuthPage=({login, changePassword })=>{
-    const [curentPage,setCurrentPage] = useState('login');
+const AuthPage=({login, changePassword, loading })=>{
+    const [curentPage, setCurrentPage] = useState('login');
     return(
         <>
-            {curentPage === 'login' ? <Loginpage login={login} pageChange={()=> setCurrentPage('passwordChange')}/> : <PasswordChange changePassword={changePassword} pageChange={()=> setCurrentPage('login')}/>}
+            {curentPage === 'login' ? <Loginpage loading={loading} login={login} pageChange={()=> setCurrentPage('passwordChange')}/> : <PasswordChange changePassword={changePassword} pageChange={()=> setCurrentPage('login')}/>}
         </>
     );
 }

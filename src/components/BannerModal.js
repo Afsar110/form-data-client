@@ -106,7 +106,7 @@ export default function BannerModal({open, data, handleClose, handleUpdateClicke
           
           <Stack  spacing={2} direction="row" className="justify-center mt3">
               <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="success" onClick={handleSend} style={{width: "50px"}}>Save</Button>
-              <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="primary" onClick={handleClose} style={{width: "50px"}}>Close</Button>
+              <Button className='w-0.5 h-0.5 grow' size="small" variant="contained" color="error" onClick={handleClose} style={{width: "50px"}}>Cancel</Button>
           </Stack>
         </Box>
       </Modal>

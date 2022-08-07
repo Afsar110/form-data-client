@@ -50,7 +50,7 @@ export default function ThemeModal({open, data, handleClose, handleUpdateClicked
         aria-describedby="theme-modal-description"
       >
         <Box sx={style}>
-          <Typography id="theme-modal-title" variant="h6" component="h2"> Pick a color for your Website</Typography>
+          <Typography id="theme-modal-title" className="mb3" variant="h6" component="h2"> Pick a color for your Website</Typography>
           <HexColorPicker color={color} onChange={setColor} />
           <Stack  spacing={2} direction="row" className="justify-center mt3">
           <TextField type="tel" value={color} onChange={e=> setColor(e.target.value)} sx={{'& input': {height:'50px', width: '100px'}}}  id="outlined-color-box" label="Color" variant="outlined" size='medium' />

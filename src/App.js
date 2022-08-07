@@ -112,8 +112,8 @@ const updateBanner = async (banner) => {
   }
   return (
     <div className="App tc">
-      <ThemeModal open={themeModal} handleClose={()=> setShowThemeModal(false)} handleUpdateClicked={updateTheme} data={theme} />
-      <BannerModal open={bannerModal} handleClose={()=> setShowBannerModal(false)} handleUpdateClicked={updateBanner} data={theme}/>
+      {themeModal && <ThemeModal open={themeModal} handleClose={()=> setShowThemeModal(false)} handleUpdateClicked={updateTheme} data={theme} />}
+     {bannerModal && <BannerModal open={bannerModal} handleClose={()=> setShowBannerModal(false)} handleUpdateClicked={updateBanner} data={theme}/>}
       {isLoggedIn ? (
         changePasswordPage ? <PasswordChange changePassword={changePassword} pageChange={()=> setChangePasswordPage(false)}/>
         :

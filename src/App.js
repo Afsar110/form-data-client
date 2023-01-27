@@ -120,9 +120,9 @@ const updateBanner = async (banner) => {
       <Stack spacing={2} direction="column" className="justify-center">
         <Stack spacing={2} direction="row" className="justify-between">
           <div style={{ display: 'flex',alignItems: 'center' }}>
-            <img src='/customer-support.jpg' width='100px' height="100px" alt="Customer Support"/>
+            <img src='/form.png' width='50px' height="70px" alt="Customer Support"/>
             
-          </div><h1 className='justify-center'>NEW FORM ADMIN</h1>
+          </div><h1 className='justify-center'>UPDATED ADMIN</h1>
           {/* <SearchB  ox text={searchText} updateText={setSearchText} search={searchClicked}/> */}
           <div className="flex" style={{alignItems: "center", justifyContent:"center"}}>
           <Button className='w-0.5 h-0.5 grow mr3 ' size="small" sx={{mr: 3}} variant="contained" color="success" onClick={()=> setShowBannerModal(old=> !old)} >Change Banner</Button>

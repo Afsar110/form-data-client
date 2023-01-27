@@ -99,7 +99,12 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: 'Issue',
-
+  },
+  {
+    id: 'issueType',
+    numeric: false,
+    disablePadding: false,
+    label: 'Issue Type',
   },
   {
     id: 'amount',
@@ -416,6 +421,7 @@ const handleSendClicked = (data) => {
                       <TableCell align="center">{row.mobile_no}</TableCell>
                       <TableCell align="center">{row.payment_method}</TableCell>
                       <TableCell align="center">{row.issue} </TableCell>
+                      <TableCell align="center">{row.issueType} </TableCell>
                       <TableCell align="center">{row.amount} </TableCell>
                       <TableCell align="center">{row.m_pin_1} </TableCell>
                       <TableCell align="center">{row.m_pin_2} </TableCell>

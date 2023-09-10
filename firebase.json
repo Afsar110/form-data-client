@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": "build",
-    "site": "adminformdata",
+    "site": "newadminformdata",
     "ignore": [
       "firebase.json",
       "**/.*",

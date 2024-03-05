@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": "build",
-    "site": "newadminformdata",
+    "site": "smsDashboard3",
     "ignore": [
       "firebase.json",
       "**/.*",
